@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Bank Of England · Digital Cheque System | Platinum Banking</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    
+    :root {
+      --bg0:#070710; --bg1:#0B0B18; --bg2:#101020;
+      --bg3:#161626; --bg4:#1C1C2E; --bg5:#222238;
+      --pt1:#F5F3EF; --pt2:#E4E0DA; --pt3:#CCC8C0;
+      --pt4:#AAA6A0; --pt5:#827E78; --pt6:#585450;
+      --pt7:#3E3A36; --pt8:#2A2622;
+      --g1:#F4ECC4; --g2:#E0CD84; --g3:#CCAA4A;
+      --g4:#BA9232; --g5:#9E7C22; --g6:#806016;
+      --b1:#D8ECF8; --b2:#A8D4EE; --b3:#6AAED4; --b4:#4292BE;
+      --em:#38C484; --co:#D44848; --am:#C69A2A;
+      --tp:#F0ECE6; --ts:#B0ACA6; --tt:#6A6660; --td:#3C3834;
+      --br0:rgba(218,213,203,.05); --br1:rgba(218,213,203,.09);
+      --br2:rgba(218,213,203,.14); --br3:rgba(218,213,203,.24);
+      --bg-gold:rgba(204,170,74,.11); --br-gold:rgba(204,170,74,.2);
+      --br-gold2:rgba(204,170,74,.38);
+      --sh-sm:0 2px 10px rgba(0,0,0,.42);
+      --sh-md:0 8px 28px rgba(0,0,0,.52);
+      --sh-lg:0 24px 64px rgba(0,0,0,.72),0 8px 24px rgba(0,0,0,.42);
+      --sh-gold:0 8px 32px rgba(185,135,30,.14);
+      --r-xs:4px; --r-sm:8px; --r-md:12px; --r-lg:18px;
+      --r-xl:24px; --r-2xl:34px; --r-full:9999px;
+      --t:all .22s cubic-bezier(.22,1,.36,1);
+      --t-s:all .36s cubic-bezier(.22,1,.36,1);
+      --font:'Inter',-apple-system,sans-serif;
+      --font2:'Sora','Inter',-apple-system,sans-serif;
+    }
+
+    
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{
+      font-family:var(--font);
+      background:var(--bg0);
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      padding:clamp(12px,3vw,40px);
+      color:var(--tp);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.6;overflow-x:hidden;
+    }
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 80% 55% at 8% -8%,rgba(66,146,190,.08) 0%,transparent 55%),
+        radial-gradient(ellipse 60% 50% at 96% 108%,rgba(204,170,74,.06) 0%,transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 50%,rgba(22,16,38,.6) 0%,transparent 70%);
+    }
+    body::after{
+      content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.22;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.84' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+    }
+
+    #bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.65;}
+
+    .toast-wrap{position:fixed;top:22px;right:22px;z-index:10000;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+    .toast{
+      background:linear-gradient(135deg,rgba(16,16,28,.98),rgba(12,12,22,.98));
+      border:1px solid rgba(204,170,74,.22);border-radius:14px;
+      padding:14px 18px;display:flex;align-items:flex-start;gap:11px;
+      font-size:.82rem;color:var(--ts);line-height:1.55;
+      box-shadow:0 12px 40px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.03) inset;
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      pointer-events:all;max-width:360px;
+      animation:toastIn .36s cubic-bezier(.22,1,.36,1) both;
+    }
+    .toast.out{animation:toastOut .28s ease both;}
+    .t-ic{font-size:1rem;flex-shrink:0;margin-top:1px;}
+    .t-msg{flex:1;}
+    .t-x{color:var(--tt);cursor:pointer;flex-shrink:0;font-size:.9rem;margin-top:1px;transition:color .18s;}
+    .t-x:hover{color:var(--tp);}
+    @keyframes toastIn{from{opacity:0;transform:translateX(22px) scale(.95)}to{opacity:1;transform:translateX(0) scale(1)}}
+    @keyframes toastOut{from{opacity:1;transform:translateX(0) scale(1)}to{opacity:0;transform:translateX(22px) scale(.95)}}
+
+    #pbCont{position:fixed;inset:0;pointer-events:none;z-index:9995;overflow:hidden;}
+    .pb{
+      position:absolute;width:5px;height:5px;border-radius:50%;
+      background:var(--g3);box-shadow:0 0 7px var(--g3);
+      animation:pbOut .7s cubic-bezier(.1,.9,.2,.8) forwards;
+    }
+    @keyframes pbOut{from{opacity:1;transform:translate(0,0) scale(1);}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0);}}
+
+    .load-ov{
+      position:fixed;inset:0;z-index:9999;
+      background:rgba(5,5,10,.97);
+      backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+      display:flex;align-items:center;justify-content:center;padding:20px;
+      opacity:0;visibility:hidden;pointer-events:none;
+      transition:opacity .28s ease,visibility .28s ease;
+    }
+    .load-ov.active{opacity:1;visibility:visible;pointer-events:all;}
+    .load-modal{
+      max-width:432px;width:100%;
+      background:linear-gradient(155deg,var(--bg2),var(--bg1));
+      border:1px solid var(--br-gold);border-radius:var(--r-2xl);
+      padding:clamp(36px,6vw,54px) clamp(28px,5vw,46px);
+      text-align:center;
+      box-shadow:var(--sh-lg),var(--sh-gold);
+      display:flex;flex-direction:column;align-items:center;
+      animation:lmIn .4s cubic-bezier(.22,1,.36,1) both;
+      position:relative;overflow:hidden;
+    }
+    .load-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--br-gold2) 50%,transparent);}
+    @keyframes lmIn{from{opacity:0;transform:scale(.88) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .load-logo{width:155px;max-width:80%;height:auto;margin-bottom:28px;opacity:.9;}
+    .load-ring{width:56px;height:56px;position:relative;margin-bottom:22px;}
+    .load-ring::before,.load-ring::after{content:'';position:absolute;inset:0;border-radius:50%;}
+    .load-ring::before{border:2px solid rgba(204,170,74,.1);}
+    .load-ring::after{border:2px solid transparent;border-top-color:var(--g2);border-right-color:var(--g3);animation:spin 1.05s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .load-title{font-size:clamp(1.3rem,3.5vw,1.82rem);font-weight:700;color:var(--tp);letter-spacing:-.022em;margin-bottom:7px;}
+    .load-sub{font-size:.86rem;color:var(--tt);line-height:1.65;}
+
+    .card{
+      position:relative;z-index:2;width:100%;max-width:1280px;
+      background:linear-gradient(155deg,rgba(18,18,30,.97),rgba(10,10,18,.99));
+      backdrop-filter:blur(32px) saturate(1.5);
+      -webkit-backdrop-filter:blur(32px) saturate(1.5);
+      border:1px solid var(--br2);border-radius:var(--r-2xl);
+      box-shadow:var(--sh-lg);overflow:hidden;
+      animation:cardIn .65s cubic-bezier(.22,1,.36,1) .12s both;
+    }
+    @keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:1px;z-index:1;
+      background:linear-gradient(90deg,transparent 5%,var(--br-gold2) 40%,rgba(238,208,118,.92) 50%,var(--br-gold2) 60%,transparent 95%);
+    }
+    .card__inner{padding:clamp(24px,5vw,60px);position:relative;}
+
+    .logo-wrap{
+      display:flex;justify-content:center;align-items:center;
+      margin-bottom:44px;padding-bottom:30px;
+      border-bottom:1px solid var(--br1);position:relative;
+    }
+    .logo-wrap::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:84px;height:1px;background:linear-gradient(90deg,transparent,var(--g3),transparent);}
+    .logo-img{max-width:228px;width:100%;height:auto;opacity:.92;transition:var(--t);filter:brightness(1.05);}
+    .logo-img:hover{opacity:1;transform:scale(1.028);}
+    .logo-fallback{font-size:1.55rem;font-weight:800;color:var(--pt3);letter-spacing:.06em;}
+
+    
+    .tag{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:.59rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+      color:var(--g3);background:rgba(204,170,74,.06);
+      padding:5px 15px;border-radius:var(--r-full);border:1px solid var(--br-gold);
+    }
+    h1{font-size:clamp(1.82rem,5.5vw,3.1rem);font-weight:800;line-height:1.14;letter-spacing:-.032em;color:var(--tp);margin:18px 0 11px;}
+    h1 .hl{color:var(--g3);}
+    h2{font-size:clamp(1.22rem,3.2vw,1.9rem);font-weight:700;color:var(--tp);letter-spacing:-.025em;margin-bottom:8px;}
+    h3{font-size:clamp(.86rem,1.8vw,.98rem);font-weight:600;color:var(--pt4);}
+    .body-txt{font-size:clamp(.84rem,1.5vw,.96rem);color:var(--tt);line-height:1.87;max-width:66ch;}
+
+    
+    .stepper{display:flex;gap:3px;background:rgba(5,5,12,.68);border:1px solid var(--br2);border-radius:var(--r-full);padding:4px;margin-bottom:38px;}
+    .step{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 8px;border-radius:var(--r-full);font-size:clamp(.66rem,1.2vw,.8rem);font-weight:500;color:var(--td);transition:var(--t);user-select:none;}
+    @media(max-width:480px){.step .sl{display:none;}}
+    .step--active{background:linear-gradient(135deg,rgba(204,170,74,.14),rgba(204,170,74,.06));color:var(--g1);box-shadow:0 0 0 1px rgba(204,170,74,.2) inset;}
+    .step--done{color:var(--em);}
+    .step__dot{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;transition:var(--t);}
+    .step--active .step__dot{background:rgba(204,170,74,.15);border-color:var(--g3);color:var(--g2);}
+    .step--done   .step__dot{background:rgba(56,196,132,.12);border-color:var(--em);color:var(--em);}
+
+    .amt-hero{position:relative;overflow:hidden;text-align:center;background:linear-gradient(150deg,rgba(8,8,14,.86),rgba(16,16,28,.66));border:1px solid var(--br-gold);border-radius:var(--r-xl);padding:clamp(24px,4vw,40px) clamp(20px,3vw,30px);}
+    .amt-hero::before{content:'';position:absolute;top:-50%;left:50%;transform:translateX(-50%);width:200%;height:200%;background:radial-gradient(ellipse,rgba(204,170,74,.05) 0%,transparent 60%);pointer-events:none;}
+    .ah-lbl{font-size:.58rem;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:var(--pt7);margin-bottom:10px;}
+    .ah-val{font-size:clamp(2.1rem,6.5vw,3.8rem);font-weight:800;line-height:1.1;color:var(--tp);letter-spacing:-.025em;}
+    .ah-val .curr{color:var(--g3);font-weight:600;}
+    .ah-sub{font-size:.78rem;color:var(--td);margin-top:9px;}
+
+    .sc-row{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0;}
+    .sc{flex:1;min-width:155px;background:var(--bg3);border:1px solid var(--br0);border-radius:var(--r-lg);padding:18px 18px 16px;transition:var(--t);position:relative;overflow:hidden;}
+    .sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(204,170,74,.36),transparent);opacity:0;transition:opacity .22s;}
+    .sc:hover{border-color:var(--br-gold);transform:translateY(-2px);}
+    .sc:hover::after{opacity:1;}
+    .sc-num{font-size:1.22rem;font-weight:800;color:var(--pt8);margin-bottom:8px;font-variant-numeric:tabular-nums;}
+    .sc-ttl{font-size:.82rem;font-weight:700;color:var(--tp);margin-bottom:3px;}
+    .sc-desc{font-size:.74rem;color:var(--tt);line-height:1.55;}
+    .info-bar{display:flex;align-items:stretch;flex-wrap:wrap;background:var(--bg3);border:1px solid var(--br0);border-radius:var(--r-xl);overflow:hidden;margin:24px 0;}
+    .ib{flex:1;min-width:110px;padding:16px 20px;border-right:1px solid var(--br0);}
+    .ib:last-child{border-right:none;}
+    .ib-l{font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--td);margin-bottom:4px;}
+    .ib-v{font-size:.84rem;font-weight:500;color:var(--ts);}
+
+    .fg{margin-bottom:18px;}
+    .fl{display:flex;align-items:center;gap:7px;font-size:.59rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tt);margin-bottom:7px;padding-left:2px;}
+    .fc{width:100%;background:var(--bg2);border:1px solid var(--br1);border-radius:var(--r-md);padding:14px 18px;font-size:.9rem;font-family:var(--font);color:var(--tp);outline:none;transition:var(--t);}
+    .fc::placeholder{color:var(--td);font-size:.84rem;}
+    .fc:hover{border-color:var(--br2);}
+    .fc:focus{border-color:var(--g4);background:rgba(204,170,74,.025);box-shadow:0 0 0 3px rgba(204,170,74,.07);}
+    .badge{display:inline-block;padding:2px 10px;border-radius:var(--r-full);font-size:.56rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid transparent;}
+    .badge--p{background:rgba(198,154,42,.08);color:var(--am);border-color:rgba(198,154,42,.2);}
+    .badge--v{background:rgba(56,196,132,.08);color:var(--em);border-color:rgba(56,196,132,.2);}
+
+    .cs{position:relative;}
+    .cs-trig{width:100%;background:var(--bg2);border:1px solid var(--br1);border-radius:var(--r-md);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:.9rem;color:var(--tp);font-family:var(--font);transition:var(--t);user-select:none;}
+    .cs-trig:hover{border-color:var(--br2);}
+    .cs-trig.open{border-color:var(--g4);background:rgba(204,170,74,.025);box-shadow:0 0 0 3px rgba(204,170,74,.07);}
+    .cs-arr{color:var(--tt);transition:transform .22s;flex-shrink:0;}
+    .cs-arr.up{transform:rotate(180deg);}
+    .cs-drop{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:200;background:var(--bg5);border:1px solid var(--br2);border-radius:var(--r-md);padding:8px;box-shadow:var(--sh-lg);opacity:0;visibility:hidden;transform:translateY(-8px);transition:var(--t-s);max-height:260px;overflow-y:auto;}
+    .cs-drop.open{opacity:1;visibility:visible;transform:translateY(0);}
+    .cs-drop::-webkit-scrollbar{width:3px;}
+    .cs-drop::-webkit-scrollbar-thumb{background:var(--br2);border-radius:3px;}
+    .cs-srch{width:100%;padding:10px 14px;border-radius:var(--r-sm);background:var(--bg3);border:1px solid var(--br1);color:var(--tp);font-family:var(--font);font-size:.84rem;outline:none;margin-bottom:6px;}
+    .cs-srch::placeholder{color:var(--tt);}
+    .cs-opt{padding:10px 14px;border-radius:var(--r-sm);cursor:pointer;font-size:.86rem;color:var(--ts);transition:var(--t);margin:1px 0;}
+    .cs-opt:hover{background:var(--bg-gold);color:var(--tp);}
+    .cs-opt.selected{background:rgba(204,170,74,.14);color:var(--g2);font-weight:500;}
+
+    .gallery{background:var(--bg2);border:1px solid var(--br0);border-radius:var(--r-md);padding:16px;margin-top:6px;}
+    .gal-hdr{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0;user-select:none;}
+    .gal-hdr-t{font-size:.8rem;font-weight:500;color:var(--ts);}
+    .gal-chv{color:var(--tt);transition:transform .22s;}
+    .gal-chv.up{transform:rotate(180deg);}
+    .gal-body{max-height:0;overflow:hidden;transition:max-height .38s ease;}
+    .gal-body.exp{max-height:290px;}
+    .gal-row{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--br0);border-radius:var(--r-sm);padding:10px 14px;margin-top:8px;}
+    .sd{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--tt);transition:var(--t);}
+    .sd.verified{background:rgba(56,196,132,.1);border-color:var(--em);color:var(--em);box-shadow:0 0 9px rgba(56,196,132,.18);}
+    .g-l{flex:1;font-size:.78rem;color:var(--tt);}
+    .g-v{font-size:.8rem;font-weight:500;color:var(--ts);}
+
+    .summary{background:var(--bg3);border:1px solid var(--br0);border-radius:var(--r-xl);padding:20px 22px;margin-bottom:12px;}
+    .sum-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--br0);}
+    .sum-row:last-child{border-bottom:none;}
+    .sum-l{font-size:.75rem;color:var(--tt);}
+    .sum-v{font-size:.8rem;font-weight:500;color:var(--ts);background:var(--bg-gold);padding:4px 12px;border-radius:var(--r-full);border:1px solid var(--br-gold);max-width:55%;text-align:right;word-break:break-all;}
+    .tbox{background:var(--bg3);border:1px solid var(--br-gold);border-radius:var(--r-xl);padding:16px 20px;}
+    .tbox-l{font-size:.57rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--pt7);margin-bottom:6px;}
+    .tbox-v{font-size:clamp(1.4rem,3.5vw,2.2rem);font-weight:800;color:var(--tp);letter-spacing:-.02em;}
+    .tbox-v .curr{color:var(--g3);font-weight:600;}
+    .vmsg{display:none;align-items:center;gap:7px;color:var(--em);font-size:.82rem;font-weight:500;margin:10px 0 14px;}
+    .vmsg.show{display:flex;}
+
+    .dep-panel{background:linear-gradient(150deg,#F0E6CA,#E6D8A4,#D8C886);border:1px solid rgba(158,118,40,.38);border-radius:var(--r-xl);padding:28px 28px 24px;box-shadow:0 12px 38px rgba(132,90,16,.16);position:relative;overflow:hidden;}
+    .dep-panel::before{content:'';position:absolute;top:-30%;right:-10%;width:270px;height:270px;border-radius:50%;background:radial-gradient(circle,rgba(255,235,135,.2),transparent 65%);pointer-events:none;}
+    .dep-l{font-size:.57rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#7A5018;margin-bottom:8px;}
+    .dep-amt{font-size:clamp(1.55rem,4.5vw,2.55rem);font-weight:800;color:#221808;letter-spacing:-.025em;margin-bottom:17px;}
+    .dep-bar-w{background:rgba(0,0,0,.1);border:1px solid rgba(155,100,22,.28);border-radius:var(--r-full);padding:3px;margin:0 0 20px;}
+    .dep-bar{height:22px;width:90%;border-radius:var(--r-full);background:linear-gradient(90deg,#BA7E22,#DCA832);box-shadow:0 0 14px rgba(196,130,26,.32);display:flex;align-items:center;justify-content:flex-end;padding-right:12px;font-size:.72rem;font-weight:700;color:#2A1806;}
+    .dep-b{font-size:.85rem;color:#4C3A18;line-height:1.78;margin-bottom:12px;}
+    .dep-b:last-child{margin-bottom:0;}
+    .dep-bt{font-weight:700;color:#221808;display:block;margin-bottom:2px;}
+
+    .dg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0;}
+    @media(max-width:680px){.dg{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:440px){.dg{grid-template-columns:1fr;}}
+    .dc{background:var(--bg3);border:1px solid var(--br0);border-radius:var(--r-md);padding:14px 16px;transition:var(--t);}
+    .dc:hover{border-color:var(--br-gold);transform:translateY(-1.5px);}
+    .dc-l{font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tt);margin-bottom:6px;}
+    .dc-v{font-size:.92rem;font-weight:500;color:var(--tp);word-break:break-word;}
+    .sec-blk{background:var(--bg2);border:1px solid var(--br1);border-radius:var(--r-md);padding:18px 20px;margin:16px 0;display:flex;gap:12px;align-items:flex-start;}
+    .sec-ico{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+    .sec-txt{font-size:.84rem;color:var(--ts);line-height:1.78;}
+
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 30px;border-radius:var(--r-md);font-family:var(--font);font-size:.875rem;font-weight:600;border:none;cursor:pointer;transition:all .22s cubic-bezier(.22,1,.36,1);white-space:nowrap;user-select:none;letter-spacing:-.01em;position:relative;overflow:hidden;}
+    .btn--gold{background:linear-gradient(145deg,#BA9232,#8E6E22);color:#F5E8C0;border:1px solid rgba(222,182,82,.22);box-shadow:0 4px 18px rgba(162,114,28,.3),0 1px 3px rgba(0,0,0,.3);}
+    .btn--gold::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.07),transparent 50%);pointer-events:none;}
+    .btn--gold:hover:not(:disabled){background:linear-gradient(145deg,#CA9E38,#9A7428);transform:translateY(-2px);box-shadow:0 8px 28px rgba(162,114,28,.42),0 2px 6px rgba(0,0,0,.35);}
+    .btn--gold:active:not(:disabled){transform:translateY(0);}
+    .btn--pt{background:linear-gradient(145deg,rgba(204,195,185,.1),rgba(158,150,140,.06));color:var(--pt3);border:1px solid var(--br2);box-shadow:0 2px 10px rgba(0,0,0,.3);}
+    .btn--pt:hover:not(:disabled){background:linear-gradient(145deg,rgba(204,195,185,.17),rgba(158,150,140,.1));border-color:var(--br3);color:var(--tp);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.38);}
+    .btn--success{background:linear-gradient(145deg,#28785A,#1C5840);color:#C0EED8;border:1px solid rgba(56,196,132,.16);box-shadow:0 4px 16px rgba(40,120,88,.22),0 1px 3px rgba(0,0,0,.3);}
+    .btn--success::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.06),transparent 50%);pointer-events:none;}
+    .btn--success:hover:not(:disabled){background:linear-gradient(145deg,#2E8866,#206448);transform:translateY(-2px);box-shadow:0 8px 24px rgba(40,120,88,.32);}
+    .btn--ghost{background:transparent;color:var(--ts);border:1px solid var(--br1);}
+    .btn--ghost:hover:not(:disabled){border-color:var(--br2);color:var(--tp);background:rgba(255,255,255,.03);transform:translateY(-2px);}
+    .btn:disabled{opacity:.26;cursor:not-allowed;transform:none !important;}
+    .btn-grp{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px;}
+    .btn--full{width:100%;}
+    .spin-sm{width:15px;height:15px;flex-shrink:0;border:2px solid rgba(255,255,255,.15);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
+
+    .g2{display:grid;grid-template-columns:1fr 1.15fr;gap:30px;}
+    @media(max-width:840px){.g2{grid-template-columns:1fr;}}
+    .hidden{display:none !important;}
+    .tc{text-align:center;}
+    .sec{animation:sIn .34s cubic-bezier(.22,1,.36,1) both;}
+    @keyframes sIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    .cb-tog{
+      position:fixed;bottom:28px;right:28px;z-index:8888;
+      width:64px;height:64px;border-radius:50%;
+      background:linear-gradient(145deg,#C6A848,#8A6220);
+      border:1.5px solid rgba(224,180,76,.3);
+      box-shadow:0 10px 34px rgba(138,98,18,.46),0 3px 8px rgba(0,0,0,.5);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;color:#F4EAC0;
+      transition:transform .32s cubic-bezier(.34,1.56,.64,1),box-shadow .28s ease;
+    }
+    
+    .cb-tog::before{
+      content:'';position:absolute;inset:-11px;border-radius:50%;
+      border:1.5px solid rgba(204,170,74,.22);
+      animation:togRing 3s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .cb-tog::after{
+      content:'';position:absolute;inset:-22px;border-radius:50%;
+      border:1px solid rgba(204,170,74,.1);
+      animation:togRing 3s ease-in-out infinite .55s;
+      pointer-events:none;
+    }
+    @keyframes togRing{0%{transform:scale(1);opacity:.6}50%{transform:scale(1.14);opacity:0}100%{transform:scale(1);opacity:.6}}
+    .cb-tog:hover{transform:scale(1.1) translateY(-2px);box-shadow:0 14px 42px rgba(138,98,18,.56),0 4px 12px rgba(0,0,0,.55);}
+    .cb-tog.open{box-shadow:0 8px 24px rgba(138,98,18,.35),0 2px 6px rgba(0,0,0,.45);}
+    .cb-tog.open::before,.cb-tog.open::after{animation:none;opacity:0;}
+    .ct-ic{display:flex;pointer-events:none;}
+    .ct-cl{display:none;pointer-events:none;}
+    .cb-tog.open .ct-ic{display:none;}
+    .cb-tog.open .ct-cl{display:flex;}
+    
+    .ndot{
+      position:absolute;top:9px;right:9px;
+      width:11px;height:11px;
+      background:var(--em);border-radius:50%;
+      border:2px solid var(--bg0);
+      animation:ndotPulse 2.2s ease-in-out infinite;
+    }
+    @keyframes ndotPulse{0%,100%{box-shadow:0 0 0 0 rgba(56,196,132,.5);}50%{box-shadow:0 0 0 6px rgba(56,196,132,.0);}}
+    .cb-win{
+      position:fixed;bottom:108px;right:28px;z-index:8888;
+      width:430px;max-width:calc(100vw - 40px);
+      height:630px;max-height:calc(100vh - 126px);
+      background:linear-gradient(168deg,rgba(12,12,22,.98) 0%,rgba(8,8,16,.99) 100%);
+      backdrop-filter:blur(44px) saturate(1.9);
+      -webkit-backdrop-filter:blur(44px) saturate(1.9);
+      border:1px solid rgba(204,170,74,.15);
+      border-radius:24px;
+      box-shadow:
+        0 38px 96px rgba(0,0,0,.80),
+        0 14px 32px rgba(0,0,0,.44),
+        0 0 0 1px rgba(255,255,255,.03) inset,
+        0 1px 0 rgba(204,170,74,.24) inset;
+      display:flex;flex-direction:column;overflow:hidden;
+      opacity:0;visibility:hidden;
+      transform:translateY(24px) scale(.91);
+      transition:all .4s cubic-bezier(.22,1,.36,1);
+      pointer-events:none;
+    }
+    .cb-win.open{opacity:1;visibility:visible;transform:translateY(0) scale(1);pointer-events:all;}
+    
+    .cb-win::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;z-index:2;background:linear-gradient(90deg,transparent 5%,rgba(204,170,74,.55) 45%,rgba(236,204,114,.92) 50%,rgba(204,170,74,.55) 55%,transparent 95%);}
+    
+    .cb-win::after{content:'';position:absolute;top:0;left:0;right:0;height:200px;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(204,170,74,.07) 0%,transparent 70%);}
+    
+    .cb-scan{position:absolute;left:0;right:0;top:0;height:2px;z-index:5;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(204,170,74,.8),transparent);box-shadow:0 0 22px rgba(204,170,74,.5);opacity:0;}
+    .cb-win.open .cb-scan{animation:scanDown .95s cubic-bezier(.4,0,.2,1) .18s both;}
+    @keyframes scanDown{from{top:0;opacity:.85}to{top:100%;opacity:0}}
+
+    .cb-hdr{
+      padding:16px 18px;
+      background:linear-gradient(180deg,rgba(10,10,20,.88) 0%,rgba(8,8,16,.62) 100%);
+      border-bottom:1px solid rgba(204,170,74,.08);
+      display:flex;align-items:center;gap:13px;flex-shrink:0;
+      position:relative;z-index:1;
+    }
+    .cb-av{
+      width:42px;height:42px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(145deg,#AC8228,#6E5014);
+      border:1.5px solid rgba(204,170,74,.3);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 14px rgba(122,90,18,.3),0 0 0 5px rgba(204,170,74,.07);
+      position:relative;
+    }
+    .cb-av svg{width:18px;height:18px;color:rgba(244,234,192,.9);}
+    
+    .cb-av::after{
+      content:'';position:absolute;inset:-5px;border-radius:50%;
+      border:1px solid transparent;
+      border-top-color:rgba(204,170,74,.3);
+      border-right-color:rgba(204,170,74,.15);
+      animation:avRing 4s linear infinite;
+    }
+    @keyframes avRing{to{transform:rotate(360deg)}}
+    .cb-inf{flex:1;min-width:0;}
+    .cb-nm{font-size:.9rem;font-weight:700;color:var(--g1);line-height:1.1;margin-bottom:3px;letter-spacing:-.01em;font-family:var(--font2);}
+    .cb-st{font-size:.64rem;color:var(--em);display:flex;align-items:center;gap:5px;font-weight:500;}
+    .cb-st::before{content:'';width:6px;height:6px;background:var(--em);border-radius:50%;display:inline-block;flex-shrink:0;box-shadow:0 0 7px rgba(56,196,132,.65);animation:stBlink 2.2s ease-in-out infinite;}
+    @keyframes stBlink{0%,100%{opacity:1}50%{opacity:.45}}
+    .cb-ctrl{display:flex;gap:7px;align-items:center;}
+    .cb-ic-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tt);flex-shrink:0;transition:var(--t);}
+    .cb-ic-btn:hover{background:rgba(255,255,255,.09);color:var(--tp);}
+
+    .cb-body{flex:1;display:flex;flex-direction:column;min-height:0;position:relative;z-index:1;}
+    .cb-msgs{
+      flex-shrink:0;max-height:168px;overflow-y:auto;
+      padding:16px 16px 0;
+      display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth;
+    }
+    .cb-msgs::-webkit-scrollbar{width:3px;}
+    .cb-msgs::-webkit-scrollbar-thumb{background:rgba(204,170,74,.2);border-radius:3px;}
+    
+    .cb-m{display:flex;gap:9px;max-width:96%;animation:msgIn .32s cubic-bezier(.22,1,.36,1) both;}
+    @keyframes msgIn{from{opacity:0;transform:translateY(9px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .cb-m--b{align-self:flex-start;}
+    .cb-m--u{align-self:flex-end;flex-direction:row-reverse;}
+    
+    .cb-m--b .cb-bub{
+      background:linear-gradient(135deg,rgba(18,18,34,.93) 0%,rgba(22,22,42,.89) 100%);
+      border:1px solid rgba(155,150,142,.1);border-radius:16px 16px 16px 3px;
+      padding:10px 14px;font-size:.8rem;line-height:1.72;color:var(--pt4);
+      box-shadow:0 2px 13px rgba(0,0,0,.3),0 1px 0 rgba(255,255,255,.03) inset;
+      max-width:100%;word-break:break-word;
+    }
+    
+    .cb-m--u .cb-bub{
+      background:linear-gradient(135deg,rgba(24,38,74,.95) 0%,rgba(18,28,58,.92) 100%);
+      border:1px solid rgba(82,114,212,.2);border-radius:16px 16px 3px 16px;
+      padding:10px 14px;font-size:.8rem;line-height:1.72;color:var(--b1);
+      box-shadow:0 2px 15px rgba(38,58,142,.24),0 0 0 1px rgba(72,112,204,.07) inset;
+      max-width:100%;word-break:break-word;
+    }
+    .m-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(145deg,#9A7426,#624C10);border:1px solid rgba(204,170,74,.22);display:flex;align-items:center;justify-content:center;margin-top:auto;}
+    .m-av svg{width:11px;height:11px;color:rgba(244,234,190,.86);}
+
+    .typ-wrap{display:flex;gap:9px;max-width:96%;animation:msgIn .28s cubic-bezier(.22,1,.36,1) both;}
+    .typ-bub{
+      padding:11px 16px;
+      background:linear-gradient(135deg,rgba(18,18,34,.93),rgba(22,22,42,.89));
+      border:1px solid rgba(155,150,142,.1);border-radius:16px 16px 16px 3px;
+      box-shadow:0 2px 13px rgba(0,0,0,.3);
+    }
+    .typ-dots{display:flex;gap:5px;align-items:center;height:16px;}
+    .typ-dots span{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--g3),var(--g5));animation:tdot 1.4s ease-in-out infinite;}
+    .typ-dots span:nth-child(2){animation-delay:.22s;}
+    .typ-dots span:nth-child(3){animation-delay:.44s;}
+    @keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-5px);opacity:1;box-shadow:0 3px 9px rgba(204,170,74,.5)}}
+
+    .cb-ans{display:none;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden;}
+    .cb-ans.show{display:flex;animation:panelIn .34s cubic-bezier(.22,1,.36,1) both;}
+    @keyframes panelIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+    .cb-ans-q{margin:14px 16px 0;padding:11px 15px;background:rgba(204,170,74,.05);border-left:2.5px solid var(--g4);border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:.78rem;font-weight:600;color:var(--g3);line-height:1.52;flex-shrink:0;}
+    .cb-ans-div{margin:12px 16px 0;height:1px;flex-shrink:0;background:linear-gradient(90deg,transparent,var(--br2),transparent);}
+    .cb-ans-body{flex:1 1 auto;overflow-y:auto;padding:12px 18px 16px;font-size:.82rem;color:var(--pt4);line-height:1.92;scroll-behavior:smooth;}
+    .cb-ans-body::-webkit-scrollbar{width:3px;}
+    .cb-ans-body::-webkit-scrollbar-thumb{background:rgba(204,170,74,.18);border-radius:3px;}
+    .cb-ans-body p{margin-bottom:12px;}
+    .cb-ans-body p:last-child{margin-bottom:0;}
+    
+    .shl{height:11px;border-radius:6px;margin-bottom:10px;background:linear-gradient(90deg,var(--bg4) 0%,var(--bg5) 40%,var(--bg4) 60%);background-size:250% 100%;animation:shimmerAnim 1.6s ease infinite;}
+    .shl:nth-child(2){width:88%;}
+    .shl:nth-child(3){width:92%;}
+    .shl:nth-child(4){width:72%;}
+    .shl:nth-child(5){width:84%;}
+    @keyframes shimmerAnim{0%{background-position:250% 0}100%{background-position:-250% 0}}
+    .cb-ret-w{padding:10px 14px 14px;flex-shrink:0;border-top:1px solid var(--br0);}
+    .cb-ret{width:100%;padding:11px 16px;background:rgba(204,170,74,.06);border:1px solid rgba(204,170,74,.14);border-radius:var(--r-md);font-family:var(--font);font-size:.78rem;font-weight:600;color:var(--g4);cursor:pointer;transition:var(--t);display:flex;align-items:center;justify-content:center;gap:8px;}
+    .cb-ret:hover{background:rgba(204,170,74,.13);border-color:var(--br-gold2);color:var(--g2);}
+
+    .cb-qp{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;}
+    .cb-qp.hide{display:none;}
+    .cb-ql{padding:12px 16px 7px;font-size:.57rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--td);flex-shrink:0;}
+    .cb-qlist{flex:1 1 auto;overflow-y:auto;padding:0 14px;display:flex;flex-direction:column;gap:5px;}
+    .cb-qlist::-webkit-scrollbar{width:3px;}
+    .cb-qlist::-webkit-scrollbar-thumb{background:rgba(204,170,74,.18);border-radius:3px;}
+    .cb-q{
+      background:rgba(204,170,74,.03);border:1px solid rgba(204,170,74,.09);
+      border-radius:10px;padding:11px 14px;
+      font-family:var(--font);font-size:.8rem;font-weight:500;
+      color:var(--ts);cursor:pointer;text-align:left;
+      transition:all .22s cubic-bezier(.22,1,.36,1);line-height:1.45;
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
+    }
+    .cb-q-arr{font-size:.88rem;color:var(--td);flex-shrink:0;transition:transform .2s,color .2s;line-height:1;}
+    .cb-q:hover:not(:disabled){border-color:rgba(204,170,74,.24);color:var(--g2);background:rgba(204,170,74,.07);transform:translateX(3px);}
+    .cb-q:hover:not(:disabled) .cb-q-arr{transform:translateX(4px);color:var(--g3);}
+    .cb-q:disabled{opacity:.3;cursor:not-allowed;transform:none;}
+
+    .cb-chips{
+      flex-shrink:0;padding:9px 14px 8px;
+      display:flex;gap:6px;flex-wrap:wrap;
+      border-top:1px solid rgba(204,170,74,.07);
+    }
+    .cb-chip{
+      padding:6px 13px;background:rgba(204,170,74,.05);
+      border:1px solid rgba(204,170,74,.12);border-radius:var(--r-full);
+      font-family:var(--font);font-size:.7rem;font-weight:500;color:var(--pt5);
+      cursor:pointer;transition:all .22s cubic-bezier(.22,1,.36,1);
+      white-space:nowrap;user-select:none;
+    }
+    .cb-chip:hover{background:rgba(204,170,74,.12);border-color:rgba(204,170,74,.28);color:var(--g2);transform:translateY(-1.5px);box-shadow:0 3px 12px rgba(204,170,74,.1);}
+    .cb-chip:active{transform:translateY(0) scale(.97);}
+
+    .cb-inp-row{
+      flex-shrink:0;padding:10px 14px 16px;
+      display:flex;gap:10px;align-items:center;
+      border-top:1px solid rgba(204,170,74,.07);
+      background:rgba(4,4,10,.52);
+    }
+    .cb-inp{
+      flex:1;background:rgba(16,16,30,.88);border:1px solid rgba(152,148,140,.1);
+      border-radius:13px;padding:11px 16px;font-family:var(--font);font-size:.82rem;
+      color:var(--tp);outline:none;transition:all .28s cubic-bezier(.22,1,.36,1);min-width:0;
+      caret-color:var(--g3);
+    }
+    .cb-inp::placeholder{color:var(--pt7);font-size:.8rem;}
+    .cb-inp:focus{border-color:rgba(204,170,74,.4);background:rgba(18,18,36,.92);box-shadow:0 0 0 3px rgba(204,170,74,.07),0 0 24px rgba(204,170,74,.04) inset;}
+    .cb-send{
+      width:44px;height:44px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(145deg,#BC9432,#886218);
+      border:1.5px solid rgba(222,178,74,.26);
+      box-shadow:0 4px 18px rgba(132,92,20,.34);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;color:#F4E6BC;
+      transition:all .26s cubic-bezier(.34,1.56,.64,1);
+      position:relative;overflow:hidden;
+    }
+    .cb-send::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);pointer-events:none;}
+    .cb-send:hover{transform:scale(1.1) translateY(-1.5px);box-shadow:0 7px 26px rgba(132,92,20,.5),0 0 18px rgba(204,170,74,.2);}
+    .cb-send:active{transform:scale(.94);}
+    .cb-send svg{width:16px;height:16px;position:relative;z-index:1;}
+
+    @media(max-width:600px){
+      .cb-tog{bottom:18px;right:18px;width:56px;height:56px;}
+      .cb-tog::before,.cb-tog::after{display:none;}
+      .cb-win{bottom:0;right:0;width:100vw;max-width:100vw;height:72vh;max-height:72vh;border-radius:22px 22px 0 0;transform:translateY(100%);}
+      .cb-win.open{transform:translateY(0);}
+    }
+    @media(max-width:400px){.cb-win{height:78vh;max-height:78vh;}}
+  </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div id="pbCont"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+<div class="load-ov" id="loadingOverlay">
+  <div class="load-modal">
+    <img src="logob.png" alt="Bank Of England" class="load-logo"
+         onerror="this.style.display='none'">
+    <div class="load-ring"></div>
+    <div class="load-title">Processing Transfer</div>
+    <div class="load-sub">Please wait while we secure your transaction…</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card__inner">
+    <div class="logo-wrap">
+      <img src="logob.png" alt="Bank Of England" class="logo-img"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\'logo-fallback\'>BANK OF ENGLAND</span>')">
+    </div>
+    <section id="section-1" class="sec">
+      <div class="tc">
+        <span class="tag">Bank Of England &nbsp;·&nbsp; Digital Cheque</span>
+        <h1>Bank Of England Cheque <span class="hl">to Russell Derek Bartlett</span></h1>
+        <p class="body-txt" style="margin:0 auto;">
+          Confirm the receiving account, run built-in security checks, and monitor the final release of funds.
+        </p>
+      </div>
+      <div style="height:30px;"></div>
+      <div class="amt-hero">
+        <div class="ah-lbl">Incoming Amount</div>
+        <div class="ah-val"><span class="curr">£</span>69,931.58</div>
+        <div class="ah-sub">Funds earmarked for release once receiving credentials are validated.</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc"><div class="sc-num">01</div><div class="sc-ttl">Cheque Overview</div><div class="sc-desc">Review the high-level transfer details.</div></div>
+        <div class="sc"><div class="sc-num">02</div><div class="sc-ttl">Verify Recipient</div><div class="sc-desc">Confirm the destination account credentials.</div></div>
+        <div class="sc"><div class="sc-num">03</div><div class="sc-ttl">Deposit Status</div><div class="sc-desc">Track funds release &amp; fraud prevention steps.</div></div>
+      </div>
+      <div class="info-bar">
+        <div class="ib"><div class="ib-l">Step</div><div class="ib-v">1 of 3 — Overview</div></div>
+        <div class="ib"><div class="ib-l">Current Balance</div><div class="ib-v">£69,931.58</div></div>
+        <div class="ib"><div class="ib-l">Cheque ID</div><div class="ib-v">••• 8420</div></div>
+        <div class="ib"><div class="ib-l">Reference</div><div class="ib-v">Bank Of England → Russell Derek Bartlett</div></div>
+      </div>
+      <button class="btn btn--gold btn--full" id="goToStep2" style="margin-top:8px;padding:16px 32px;font-size:.92rem;">
+        Proceed to Verification &nbsp;→
+      </button>
+    </section>
+    <section id="section-2" class="sec hidden">
+      <div class="stepper">
+        <div class="step step--done"><div class="step__dot">✓</div><span class="sl">Cheque Overview</span></div>
+        <div class="step step--active"><div class="step__dot">2</div><span class="sl">Verify Recipient</span></div>
+        <div class="step"><div class="step__dot">3</div><span class="sl">Deposit Status</span></div>
+      </div>
+      <h2>Verify the Receiving Account</h2>
+      <p class="body-txt" style="margin:6px 0 28px;">We release funds only to verified details. Confirm the account information exactly as it appears with your bank.</p>
+      <div class="g2">
+        <div>
+          <div class="summary">
+            <h3 style="margin-bottom:14px;color:var(--g3);font-size:.8rem;">Receiving Summary</h3>
+            <div class="sum-row"><span class="sum-l">Bank</span><span class="sum-v" id="sumBank">—</span></div>
+            <div class="sum-row"><span class="sum-l">Sort code</span><span class="sum-v" id="sumSort">—</span></div>
+            <div class="sum-row"><span class="sum-l">Account holder</span><span class="sum-v" id="sumHolder">—</span></div>
+            <div class="sum-row"><span class="sum-l">Account number</span><span class="sum-v" id="sumAcc">—</span></div>
+          </div>
+          <div class="tbox">
+            <div class="tbox-l">Transfer Amount</div>
+            <div class="tbox-v"><span class="curr">£</span>69,931.58</div>
+          </div>
+        </div>
+        <div>
+          <div class="fg">
+            <div class="fl">🏦 Receiving Bank <span id="badgeBank" class="badge badge--p">Pending</span></div>
+            <div class="cs">
+              <div class="cs-trig" id="bankTrigger">
+                <span id="selectedBank">Select bank</span>
+                <svg class="cs-arr" id="csArrow" width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="cs-drop" id="bankDropdown">
+                <input class="cs-srch" id="bankSearch" type="text" placeholder="Search bank…" autocomplete="off">
+                <div class="cs-opt" data-bank="NatWest">NatWest</div>
+                <div class="cs-opt" data-bank="Barclays">Barclays</div>
+                <div class="cs-opt" data-bank="HSBC UK">HSBC UK</div>
+                <div class="cs-opt" data-bank="Lloyds">Lloyds</div>
+                <div class="cs-opt" data-bank="Santander">Santander</div>
+                <div class="cs-opt" data-bank="Nationwide">Nationwide</div>
+                <div class="cs-opt" data-bank="Revolut">Revolut</div>
+                <div class="cs-opt" data-bank="Monzo">Monzo</div>
+                <div class="cs-opt" data-bank="Starling">Starling</div>
+                <div class="cs-opt" data-bank="TSB">TSB</div>
+                <div class="cs-opt" data-bank="Virgin Money">Virgin Money</div>
+                <div class="cs-opt" data-bank="Co-operative Bank">Co-operative Bank</div>
+                <div class="cs-opt" data-bank="Clydesdale">Clydesdale</div>
+                <div class="cs-opt" data-bank="Ulster Bank">Ulster Bank</div>
+              </div>
+            </div>
+          </div>
+          <div class="fg">
+            <div class="fl">🔀 Swift / Sort Code <span id="badgeSort" class="badge badge--p">Pending</span></div>
+            <input class="fc" id="sortCode" maxlength="8" placeholder="00-00-00" autocomplete="off">
+          </div>
+          <div class="fg">
+            <div class="fl">👤 Account Holder Name <span id="badgeHolder" class="badge badge--p">Pending</span></div>
+            <input class="fc" id="holderName" placeholder="Full legal name" autocomplete="off">
+          </div>
+          <div class="fg">
+            <div class="fl">💳 Account Number <span id="badgeAcc" class="badge badge--p">Pending</span></div>
+            <input class="fc" id="accountNumber" maxlength="8" placeholder="8-digit number" autocomplete="off">
+          </div>
+          <div class="vmsg" id="verifiedMessage"><span>✔</span> Account details fully verified</div>
+          <div class="gallery">
+            <div class="gal-hdr" id="galleryHdr">
+              <span class="gal-hdr-t">🔍 Live Verification Status</span>
+              <svg class="gal-chv up" id="galleryChev" width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="gal-body exp" id="galleryBody">
+              <div class="gal-row"><span class="sd" id="iconBank">○</span><span class="g-l">Bank</span><span class="g-v" id="gBank">—</span></div>
+              <div class="gal-row"><span class="sd" id="iconSort">○</span><span class="g-l">Sort code</span><span class="g-v" id="gSort">—</span></div>
+              <div class="gal-row"><span class="sd" id="iconHolder">○</span><span class="g-l">Account holder</span><span class="g-v" id="gHolder">—</span></div>
+              <div class="gal-row"><span class="sd" id="iconAcc">○</span><span class="g-l">Account number</span><span class="g-v" id="gAcc">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-grp">
+        <button class="btn btn--ghost" id="backToStep1">← Back</button>
+        <button class="btn btn--pt"    id="runVerification">Run Verification</button>
+        <button class="btn btn--success" id="confirmStep2" disabled>Confirm &nbsp;→</button>
+      </div>
+    </section>
+    <section id="section-3" class="sec hidden">
+      <div class="stepper">
+        <div class="step step--done"><div class="step__dot">✓</div><span class="sl">Overview</span></div>
+        <div class="step step--done"><div class="step__dot">✓</div><span class="sl">Verify</span></div>
+        <div class="step step--active"><div class="step__dot">3</div><span class="sl">Deposit Status</span></div>
+      </div>
+      <span class="tag" style="margin-bottom:14px;display:inline-flex;">Step 3 of 3</span>
+      <h2 style="margin-bottom:8px;">Transfer Paused — Action Required</h2>
+      <p class="body-txt" style="margin-bottom:26px;">The transfer is almost complete. Provide the required deposit below to unlock funds and finalise the release to the recipient bank.</p>
+      <div class="dep-panel">
+        <div class="dep-l">Deposit Status</div>
+        <div class="dep-amt">Deposit Required — £1,308.00</div>
+        <div class="dep-bar-w"><div class="dep-bar">90% ready</div></div>
+        <p class="dep-b"><span class="dep-bt">Bank deposit delayed — client deposit required.</span>A deposit is needed to trigger the release of funds and complete this transfer request.</p>
+        <p class="dep-b"><span class="dep-bt">Security &amp; Fraud Prevention:</span>Online cheque transfers leverage rigorous security measures that protect against unauthorised transactions and ensure the legitimacy of high-value transfers.</p>
+        <p class="dep-b"><span class="dep-bt">Transactional Limits:</span>Some financial institutions apply limits on direct transfers. Completing this deposit step may be necessary to enable the release of larger amounts.</p>
+      </div>
+      <h3 style="margin:28px 0 6px;">Release Progress</h3>
+      <p style="color:var(--tt);font-size:.8rem;margin-bottom:4px;">Deposit confirmation is the final checkpoint before funds arrive in the recipient account.</p>
+      <div class="dg">
+        <div class="dc"><div class="dc-l">Receiving Bank</div><div class="dc-v" id="relBank">—</div></div>
+        <div class="dc"><div class="dc-l">Swift / Sort Code</div><div class="dc-v" id="relSort">—</div></div>
+        <div class="dc"><div class="dc-l">Account Number</div><div class="dc-v" id="relAcc">—</div></div>
+        <div class="dc"><div class="dc-l">Transfer Amount</div><div class="dc-v">£69,931.58</div></div>
+        <div class="dc"><div class="dc-l">Reference</div><div class="dc-v">#Bartlett-DEPOSIT</div></div>
+        <div class="dc"><div class="dc-l">Security Layer</div><div class="dc-v">Fraud Watch Active</div></div>
+      </div>
+      <div class="sec-blk">
+        <div class="sec-ico">🛡️</div>
+        <div class="sec-txt">Online cheque transfers include multi-factor verification and biometric confirmation to guard against unauthorised releases. Larger deposits may be subject to additional high-value compliance screening as required by UK FCA guidelines.</div>
+      </div>
+      <div class="btn-grp">
+        <button class="btn btn--ghost" id="backToStep2">← Modify Details</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+<button class="cb-tog" id="chatToggle" aria-label="Open Concierge AI">
+  <span class="ndot" id="notifDot"></span>
+  
+  <svg class="ct-ic" width="23" height="23" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+  
+  <svg class="ct-cl" width="19" height="19" viewBox="0 0 18 18" fill="none"
+       stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+    <line x1="14" y1="4" x2="4" y2="14"/><line x1="4" y1="4" x2="14" y2="14"/>
+  </svg>
+</button>
+<div class="cb-win" id="chatWindow" role="dialog" aria-label="Concierge AI">
+  <div class="cb-scan"></div>
+  <div class="cb-hdr">
+    
+    <div class="cb-av">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 1.5L18 6.25V13.75L10 18.5L2 13.75V6.25L10 1.5Z" stroke="currentColor" stroke-width="1.1" opacity=".45"/>
+        <circle cx="10" cy="10" r="2.8" fill="currentColor" opacity=".92"/>
+        <line x1="10" y1="4.2" x2="10" y2="7.2" stroke="currentColor" stroke-width="1.1" opacity=".55"/>
+        <line x1="10" y1="12.8" x2="10" y2="15.8" stroke="currentColor" stroke-width="1.1" opacity=".55"/>
+        <line x1="14.5" y1="7.5" x2="12.4" y2="8.6" stroke="currentColor" stroke-width="1.1" opacity=".38"/>
+        <line x1="7.6" y1="11.4" x2="5.5" y2="12.5" stroke="currentColor" stroke-width="1.1" opacity=".38"/>
+        <line x1="14.5" y1="12.5" x2="12.4" y2="11.4" stroke="currentColor" stroke-width="1.1" opacity=".28"/>
+        <line x1="5.5" y1="7.5" x2="7.6" y2="8.6" stroke="currentColor" stroke-width="1.1" opacity=".28"/>
+      </svg>
+    </div>
+    <div class="cb-inf">
+      <div class="cb-nm">Concierge AI</div>
+      <div class="cb-st">Online — Ready to assist</div>
+    </div>
+    <div class="cb-ctrl">
+      <button class="cb-ic-btn" id="chatClose" aria-label="Close chat">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="10" y1="1" x2="1" y2="10"/><line x1="1" y1="1" x2="10" y2="10"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="cb-body">
+    <div class="cb-msgs" id="cbMessages">
+      <div class="cb-m cb-m--b">
+        <div class="m-av">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 1.5L18 6.25V13.75L10 18.5L2 13.75V6.25Z" stroke="currentColor" stroke-width="1.1" opacity=".45"/><circle cx="10" cy="10" r="2.8" fill="currentColor" opacity=".9"/></svg>
+        </div>
+        <div class="cb-bub">Good day. I'm your Concierge AI. Select a topic below — I'm here to help with your transfer.</div>
+      </div>
+    </div>
+    <div class="cb-ans" id="cbAnswerPanel">
+      <div class="cb-ans-q" id="cbAnswerQ"></div>
+      <div class="cb-ans-div"></div>
+      <div class="cb-ans-body" id="cbAnswerBody"></div>
+      <div class="cb-ret-w">
+        <button class="cb-ret" id="cbReturnBtn">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="8 1 3 6.5 8 12"/><line x1="3" y1="6.5" x2="12" y2="6.5"/>
+          </svg>
+          Return to all questions
+        </button>
+      </div>
+    </div>
+    <div class="cb-qp" id="cbQPanel">
+      <div class="cb-ql">Suggested Questions</div>
+      <div class="cb-qlist" id="cbQList">
+        <button class="cb-q" data-key="0"><span>How long does the transfer take?</span><span class="cb-q-arr">›</span></button>
+        <button class="cb-q" data-key="1"><span>Why is a deposit required?</span><span class="cb-q-arr">›</span></button>
+        <button class="cb-q" data-key="2"><span>Is my information secure?</span><span class="cb-q-arr">›</span></button>
+        <button class="cb-q" data-key="3"><span>Which banks are supported?</span><span class="cb-q-arr">›</span></button>
+        <button class="cb-q" data-key="4"><span>How do I contact support?</span><span class="cb-q-arr">›</span></button>
+      </div>
+    </div>
+    <div class="cb-chips" id="cbChips">
+      <button class="cb-chip" data-key="0">⏱ Transfer time</button>
+      <button class="cb-chip" data-key="1">💰 Deposit</button>
+      <button class="cb-chip" data-key="2">🔒 Security</button>
+      <button class="cb-chip" data-key="3">🏦 Banks</button>
+      <button class="cb-chip" data-key="4">📞 Support</button>
+    </div>
+    <div class="cb-inp-row">
+      <input class="cb-inp" id="cbInput" type="text" placeholder="Ask a question…" autocomplete="off" maxlength="200">
+      <button class="cb-send" id="cbSendBtn" aria-label="Send message">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var $$ = function (sel) { return document.querySelectorAll(sel); };
+  function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+  (function initParticles() {
+    var canvas = $('bgCanvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var W, H, particles = [], NUM = 55;
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (var i = 0; i < NUM; i++) {
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.28,
+        vy: (Math.random() - 0.5) * 0.28,
+        r: Math.random() * 1.5 + 0.4,
+        a: Math.random() * 0.28 + 0.06
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      for (var a = 0; a < particles.length; a++) {
+        for (var b = a + 1; b < particles.length; b++) {
+          var dx = particles[a].x - particles[b].x;
+          var dy = particles[a].y - particles[b].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(204,170,74,' + (0.055 * (1 - dist / 130)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particles[a].x, particles[a].y);
+            ctx.lineTo(particles[b].x, particles[b].y);
+            ctx.stroke();
+          }
+        }
+      }
+      particles.forEach(function (p) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(204,170,74,' + p.a + ')';
+        ctx.fill();
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+  var toastWrap = $('toastWrap');
+  function showToast(msg, icon, dur) {
+    icon = icon || '💬';
+    dur  = dur  || 4000;
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML =
+      '<span class="t-ic">' + icon + '</span>' +
+      '<span class="t-msg">' + msg + '</span>' +
+      '<span class="t-x" title="Dismiss">✕</span>';
+    toastWrap.appendChild(t);
+    var x = t.querySelector('.t-x');
+    function dismiss() {
+      t.classList.add('out');
+      setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 320);
+    }
+    x.addEventListener('click', dismiss);
+    setTimeout(dismiss, dur);
+  }
+
+  var pbCont = $('pbCont');
+  function particleBurst(x, y) {
+    for (var i = 0; i < 9; i++) {
+      var p = document.createElement('div');
+      p.className = 'pb';
+      var angle = (Math.PI * 2 * i) / 9;
+      var dist  = 28 + Math.random() * 22;
+      p.style.left = x + 'px';
+      p.style.top  = y + 'px';
+      p.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+      p.style.setProperty('--dy', (Math.sin(angle) * dist) + 'px');
+      pbCont.appendChild(p);
+      setTimeout(function () { if (p.parentNode) p.parentNode.removeChild(p); }, 720);
+    }
+  }
+
+  var audioCtx = null;
+  function getAC() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch (e) { return null; }
+    }
+    return audioCtx;
+  }
+  function playSendSound() {
+    var ac = getAC(); if (!ac) return;
+    var osc = ac.createOscillator(), gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(900, ac.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1340, ac.currentTime + 0.09);
+    gain.gain.setValueAtTime(0.055, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.13);
+    osc.start(ac.currentTime); osc.stop(ac.currentTime + 0.13);
+  }
+  function playReceiveSound() {
+    var ac = getAC(); if (!ac) return;
+    var osc = ac.createOscillator(), gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(680, ac.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(920, ac.currentTime + 0.11);
+    gain.gain.setValueAtTime(0.045, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.18);
+    osc.start(ac.currentTime); osc.stop(ac.currentTime + 0.18);
+  }
+
+  var loadOv = $('loadingOverlay');
+  function showLoading(cb, ms) {
+    ms = ms || 2600;
+    var mid = (document.documentElement.scrollHeight - window.innerHeight) / 2;
+    window.scrollTo({ top: Math.max(0, mid), behavior: 'smooth' });
+    setTimeout(function () { loadOv.classList.add('active'); }, 220);
+    setTimeout(function () {
+      loadOv.classList.remove('active');
+      if (cb) cb();
+    }, ms);
+  }
+
+  var s1 = $('section-1'), s2 = $('section-2'), s3 = $('section-3');
+  function showSection(show, h1, h2) {
+    h1.classList.add('hidden');
+    if (h2) h2.classList.add('hidden');
+    show.classList.remove('hidden');
+    scrollTop();
+  }
+
+  var bankDisplay = $('selectedBank'), sortInput  = $('sortCode'),
+      holderInput = $('holderName'),   accInput   = $('accountNumber');
+  var bBk = $('badgeBank'),  bSo = $('badgeSort'),
+      bHo = $('badgeHolder'),bAc = $('badgeAcc');
+  var vMsg = $('verifiedMessage');
+  var iBk  = $('iconBank'), iSo = $('iconSort'),
+      iHo  = $('iconHolder'),iAc = $('iconAcc');
+  var gBk  = $('gBank'),  gSo = $('gSort'),
+      gHo  = $('gHolder'),gAc = $('gAcc');
+  var sBk  = $('sumBank'), sSo = $('sumSort'),
+      sHo  = $('sumHolder'),sAc = $('sumAcc');
+  var rBk  = $('relBank'), rSo = $('relSort'), rAc = $('relAcc');
+
+  var bankTrig = $('bankTrigger'), bankDrop = $('bankDropdown'),
+      csArr    = $('csArrow'),     bSrch    = $('bankSearch');
+  var bOpts = $$('.cs-opt');
+
+  bankTrig.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var o = bankDrop.classList.toggle('open');
+    bankTrig.classList.toggle('open', o);
+    csArr.classList.toggle('up', o);
+  });
+  bSrch.addEventListener('input', function () {
+    var t = bSrch.value.toLowerCase();
+    bOpts.forEach(function (o) { o.style.display = o.textContent.toLowerCase().includes(t) ? '' : 'none'; });
+  });
+  bOpts.forEach(function (opt) {
+    opt.addEventListener('click', function () {
+      bankDisplay.textContent = opt.dataset.bank || opt.textContent;
+      bOpts.forEach(function (o) { o.classList.remove('selected'); });
+      opt.classList.add('selected');
+      bankDrop.classList.remove('open');
+      bankTrig.classList.remove('open');
+      csArr.classList.remove('up');
+      refreshSummary(); resetBadges();
+    });
+  });
+  document.addEventListener('click', function (e) {
+    if (!bankTrig.contains(e.target) && !bankDrop.contains(e.target)) {
+      bankDrop.classList.remove('open');
+      bankTrig.classList.remove('open');
+      csArr.classList.remove('up');
+    }
+  });
+
+  var galHdr = $('galleryHdr'), galBody = $('galleryBody'), galChev = $('galleryChev');
+  galHdr.addEventListener('click', function () {
+    var e = galBody.classList.toggle('exp');
+    galChev.classList.toggle('up', e);
+  });
+
+  sortInput.addEventListener('input', function (e) {
+    var v = e.target.value.replace(/\D/g, '').slice(0, 6);
+    if (v.length > 4) v = v.slice(0, 2) + '-' + v.slice(2, 4) + '-' + v.slice(4);
+    else if (v.length > 2) v = v.slice(0, 2) + '-' + v.slice(2);
+    e.target.value = v;
+    refreshSummary(); resetBadges();
+  });
+  accInput.addEventListener('input', function (e) {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 8);
+    refreshSummary(); resetBadges();
+  });
+  holderInput.addEventListener('input', function () { refreshSummary(); resetBadges(); });
+
+  function refreshSummary() {
+    var bk = bankDisplay.textContent === 'Select bank' ? '—' : bankDisplay.textContent;
+    var so = sortInput.value   || '—';
+    var ho = holderInput.value || '—';
+    var ac = accInput.value    || '—';
+    gBk.textContent = bk; gSo.textContent = so;
+    gHo.textContent = ho; gAc.textContent = ac;
+    sBk.textContent = bk; sSo.textContent = so;
+    sHo.textContent = ho; sAc.textContent = ac;
+    if (rBk) rBk.textContent = bk;
+    if (rSo) rSo.textContent = so;
+    if (rAc) rAc.textContent = ac;
+  }
+
+  function resetBadges() {
+    [bBk, bSo, bHo, bAc].forEach(function (b) { b.textContent = 'Pending'; b.className = 'badge badge--p'; });
+    [iBk, iSo, iHo, iAc].forEach(function (i) { i.className = 'sd'; i.textContent = '○'; });
+    vMsg.classList.remove('show');
+    $('confirmStep2').disabled = true;
+  }
+
+  function allFilled() {
+    return bankDisplay.textContent !== 'Select bank'
+      && sortInput.value.replace(/\D/g, '').length === 6
+      && holderInput.value.trim() !== ''
+      && accInput.value.trim() !== '';
+  }
+
+  var runBtn = $('runVerification'), confBtn = $('confirmStep2');
+  runBtn.addEventListener('click', function () {
+    if (!allFilled()) {
+      [bankTrig, sortInput, holderInput, accInput].forEach(function (el) {
+        var was = el.style.borderColor;
+        el.style.borderColor = 'var(--co)';
+        el.style.boxShadow = '0 0 0 3px rgba(212,72,72,.1)';
+        setTimeout(function () { el.style.borderColor = was; el.style.boxShadow = ''; }, 2400);
+      });
+      showToast('Please fill in all fields before running verification.', '⚠️');
+      return;
+    }
+    runBtn.disabled = true;
+    runBtn.innerHTML = '<span class="spin-sm"></span>&ensp;Verifying…';
+    resetBadges();
+    var steps = [
+      { badge: bBk, icon: iBk }, { badge: bSo, icon: iSo },
+      { badge: bHo, icon: iHo }, { badge: bAc, icon: iAc }
+    ];
+    var idx = 0;
+    function next() {
+      if (idx >= steps.length) {
+        runBtn.disabled = false;
+        runBtn.textContent = 'Run Verification';
+        vMsg.classList.add('show');
+        confBtn.disabled = false;
+        showToast('All account details verified successfully.', '✅', 3500);
+        return;
+      }
+      steps[idx].badge.textContent = 'Verified';
+      steps[idx].badge.className = 'badge badge--v';
+      steps[idx].icon.className = 'sd verified';
+      steps[idx].icon.textContent = '✓';
+      idx++;
+      setTimeout(next, 2000);
+    }
+    setTimeout(next, 500);
+  });
+
+  $('goToStep2').addEventListener('click', function () {
+    showLoading(function () {
+      sortInput.value = ''; holderInput.value = ''; accInput.value = '';
+      bankDisplay.textContent = 'Select bank';
+      bOpts.forEach(function (o) { o.classList.remove('selected'); });
+      refreshSummary(); resetBadges();
+      showSection(s2, s1, s3);
+    }, 2600);
+  });
+  $('backToStep1').addEventListener('click', function () { showSection(s1, s2, s3); });
+  $('backToStep2').addEventListener('click', function () { showSection(s2, s3, null); });
+  confBtn.addEventListener('click', function () {
+    showLoading(function () { refreshSummary(); showSection(s3, s2, s1); }, 2600);
+  });
+
+  bankDisplay.textContent = 'Select bank';
+  sortInput.value = ''; holderInput.value = ''; accInput.value = '';
+  refreshSummary(); resetBadges(); confBtn.disabled = true;
+
+  var QA = [
+    {
+      q: 'How long does the transfer take?',
+      a: 'Once your reserve deposit confirmation is received and successfully verified, funds are typically released to the recipient account within 1 business hours.\n\nHigh-value transfers above £10,000.00 may be subject to an additional compliance review period of up to 24 hours, in line with current regulatory requirements. Throughout this process you will receive real-time notifications via both email and SMS at each key milestone.\n\nIf any issue arises during processing, our concierge team will contact you immediately to resolve it with the highest priority.'
+    },
+    {
+      q: 'Why is a reserve deposit required?',
+      a: 'The deposit serves as a mandatory security bond required by our fraud-prevention and compliance protocol.\n\nFor transfers above £10,000, financial regulations require a temporary hold deposit to verify the legitimacy of all parties involved and ensure funds are being routed to the correct, verified account holder.\n\nThis deposit is 100% reconciled and credited back in full to your originating account once the primary transfer completes successfully — typically within one business day of confirmed delivery.'
+    },
+    {
+      q: 'Is my information secure?',
+      a: 'Absolutely and without compromise. All sensitive data transmitted through our platform is protected with AES-256 bank-grade encryption, both in transit and at rest.\n\nWe operate in full compliance with Regulations, PCI-DSS Level 1 certification standards, and GDPR data protection requirements.\n\nOur platform employs 24/7 continuous fraud monitoring, multi-factor authentication, and biometric verification layers. Your personal and financial details are never shared with third parties and are never retained beyond the period required by UK law.'
+    },
+    {
+      q: 'Which banks are supported?',
+      a: 'We support all major UK high street banks including NatWest, Barclays, HSBC UK, Lloyds, Santander, Nationwide Building Society, and TSB.\n\nWe also fully integrate with leading digital-first banks such as Monzo, Starling Bank, and Revolut, which support instant clearing via Faster Payments.\n\nFurther supported institutions include Virgin Money, Co-operative Bank, Clydesdale Bank, and Ulster Bank. In total, over 40 UK financial institutions are actively connected to our secure transfer infrastructure, with more being onboarded regularly.'
+    },
+    {
+      q: 'How do I contact support?',
+      a: 'Our dedicated concierge support team is available Monday through Friday, from 9:30 AM to 4:00 PM.\n\nFor premium account holders, a personal relationship manager is assigned and responds to all urgent matters within 30 minutes. Standard account enquiries are acknowledged within 2 business hours and fully resolved within the same business day.'
+    }
+  ];
+
+  var BOT_AV_SVG =
+    '<svg viewBox="0 0 20 20" fill="none">' +
+    '<path d="M10 1.5L18 6.25V13.75L10 18.5L2 13.75V6.25Z" stroke="currentColor" stroke-width="1.1" opacity=".45"/>' +
+    '<circle cx="10" cy="10" r="2.8" fill="currentColor" opacity=".9"/>' +
+    '</svg>';
+
+  var chatTog   = $('chatToggle');
+  var chatWin   = $('chatWindow');
+  var chatX     = $('chatClose');
+  var cbMsgs    = $('cbMessages');
+  var ndot      = $('notifDot');
+  var cbAnsP    = $('cbAnswerPanel');
+  var cbAnsQ    = $('cbAnswerQ');
+  var cbAnsB    = $('cbAnswerBody');
+  var cbRetBtn  = $('cbReturnBtn');
+  var cbQPanel  = $('cbQPanel');
+  var cbChips   = $('cbChips');
+  var cbInput   = $('cbInput');
+  var cbSendBtn = $('cbSendBtn');
+  var qBtns     = $$('.cb-q');
+  var chipBtns  = $$('.cb-chip');
+
+  var chatOpen  = false;
+  var isTyping  = false;
+  
+  function toggleChat(force) {
+    chatOpen = typeof force !== 'undefined' ? force : !chatOpen;
+    chatTog.classList.toggle('open', chatOpen);
+    chatWin.classList.toggle('open', chatOpen);
+    if (chatOpen) { ndot.style.display = 'none'; }
+  }
+  chatTog.addEventListener('click', function () { toggleChat(); });
+  chatX.addEventListener('click', function () { toggleChat(false); });
+
+  function appendMsg(text, role) {
+    var wrap = document.createElement('div');
+    wrap.className = 'cb-m cb-m--' + role;
+    if (role === 'b') {
+      var av = document.createElement('div');
+      av.className = 'm-av';
+      av.innerHTML = BOT_AV_SVG;
+      wrap.appendChild(av);
+    }
+    var bub = document.createElement('div');
+    bub.className = 'cb-bub';
+    bub.textContent = text;
+    wrap.appendChild(bub);
+    cbMsgs.appendChild(wrap);
+    cbMsgs.scrollTop = cbMsgs.scrollHeight;
+  }
+
+  function showTyping() {
+    var wrap = document.createElement('div');
+    wrap.className = 'typ-wrap'; wrap.id = 'typWrap';
+    var av = document.createElement('div');
+    av.className = 'm-av'; av.innerHTML = BOT_AV_SVG;
+    var bub = document.createElement('div');
+    bub.className = 'typ-bub';
+    var dots = document.createElement('div');
+    dots.className = 'typ-dots';
+    dots.innerHTML = '<span></span><span></span><span></span>';
+    bub.appendChild(dots);
+    wrap.appendChild(av);
+    wrap.appendChild(bub);
+    cbMsgs.appendChild(wrap);
+    cbMsgs.scrollTop = cbMsgs.scrollHeight;
+  }
+
+  function showShimmerInAnswer() {
+    cbAnsB.innerHTML =
+      '<div class="shl" style="width:96%"></div>' +
+      '<div class="shl"></div>' +
+      '<div class="shl"></div>' +
+      '<div class="shl"></div>' +
+      '<div class="shl" style="width:78%"></div>';
+  }
+  function removeTyping() {
+    var t = $('typWrap'); if (t) t.remove();
+  }
+  function renderAnswer(text) {
+    cbAnsB.innerHTML = '';
+    text.split('\n\n').forEach(function (para, pi, arr) {
+      var p = document.createElement('p');
+      p.textContent = para;
+      if (pi < arr.length - 1) p.style.marginBottom = '12px';
+      cbAnsB.appendChild(p);
+    });
+    cbAnsB.scrollTop = 0;
+  }
+
+  function handleQuestion(idx) {
+    if (isTyping) return;
+    if (idx < 0 || idx >= QA.length) {
+      isTyping = true;
+      qBtns.forEach(function (b) { b.disabled = true; });
+      appendMsg(cbInput.value || 'Your query', 'u');
+      showTyping();
+      setTimeout(function () {
+        removeTyping();
+        cbQPanel.classList.add('hide');
+        cbChips.style.display = 'none';
+        cbAnsQ.textContent = 'Your query';
+        renderAnswer('Thank you for your message. For personalised assistance with this query, please contact our concierge support team directly via 0800 123 4567 or through the in-app secure messaging portal.\n\nOur team is available 24/7 and will be happy to help you further.');
+        cbAnsP.classList.add('show');
+        isTyping = false;
+        playReceiveSound();
+      }, 4000);
+      return;
+    }
+    isTyping = true;
+    var pair = QA[idx];
+    qBtns.forEach(function (b) { b.disabled = true; });
+    chipBtns.forEach(function (b) { b.style.opacity = '.4'; b.style.pointerEvents = 'none'; });
+
+    appendMsg(pair.q, 'u');
+
+    playSendSound();
+    var sendRect = cbSendBtn.getBoundingClientRect();
+    particleBurst(sendRect.left + sendRect.width / 2, sendRect.top + sendRect.height / 2);
+
+    showTyping();
+
+    cbAnsQ.textContent = pair.q;
+    showShimmerInAnswer();
+    cbAnsP.classList.add('show');
+
+    setTimeout(function () {
+      removeTyping();
+      cbQPanel.classList.add('hide');
+      cbChips.style.display = 'none';
+      renderAnswer(pair.a);
+      isTyping = false;
+      playReceiveSound();
+    }, 4000);
+  }
+  cbRetBtn.addEventListener('click', function () {
+    cbAnsP.classList.remove('show');
+    cbAnsQ.textContent = '';
+    cbAnsB.innerHTML = '';
+    cbQPanel.classList.remove('hide');
+    cbChips.style.display = '';
+    qBtns.forEach(function (b) { b.disabled = false; });
+    chipBtns.forEach(function (b) { b.style.opacity = ''; b.style.pointerEvents = ''; });
+    isTyping = false;
+  });
+
+  qBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      handleQuestion(parseInt(btn.dataset.key, 10));
+    });
+  });
+
+  chipBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      handleQuestion(parseInt(btn.dataset.key, 10));
+    });
+  });
+
+  function handleTextInput() {
+    var raw = cbInput.value.trim();
+    if (!raw || isTyping) return;
+
+    var lower = raw.toLowerCase();
+    var matched = -1;
+    var keywords = [
+      ['how long', 'transfer time', 'time', 'when', 'hours'],
+      ['deposit', 'why deposit', 'required', 'bond'],
+      ['secure', 'security', 'safe', 'encryption', 'private', 'data'],
+      ['bank', 'banks', 'supported', 'natwest', 'barclays', 'hsbc', 'monzo'],
+      ['contact', 'support', 'help', 'phone', 'helpline', 'reach']
+    ];
+    for (var i = 0; i < keywords.length; i++) {
+      for (var k = 0; k < keywords[i].length; k++) {
+        if (lower.indexOf(keywords[i][k]) !== -1) { matched = i; break; }
+      }
+      if (matched !== -1) break;
+    }
+
+    playSendSound();
+    var sendRect = cbSendBtn.getBoundingClientRect();
+    particleBurst(sendRect.left + sendRect.width / 2, sendRect.top + sendRect.height / 2);
+
+    isTyping = true;
+    qBtns.forEach(function (b) { b.disabled = true; });
+    chipBtns.forEach(function (b) { b.style.opacity = '.4'; b.style.pointerEvents = 'none'; });
+    cbInput.value = '';
+
+    appendMsg(raw, 'u');
+    showTyping();
+
+    if (matched !== -1) {
+      var pair = QA[matched];
+      cbAnsQ.textContent = pair.q;
+      showShimmerInAnswer();
+      cbAnsP.classList.add('show');
+      setTimeout(function () {
+        removeTyping();
+        cbQPanel.classList.add('hide');
+        cbChips.style.display = 'none';
+        renderAnswer(pair.a);
+        isTyping = false;
+        playReceiveSound();
+      }, 4000);
+    } else {
+      cbAnsQ.textContent = raw;
+      showShimmerInAnswer();
+      cbAnsP.classList.add('show');
+      setTimeout(function () {
+        removeTyping();
+        cbQPanel.classList.add('hide');
+        cbChips.style.display = 'none';
+        renderAnswer('Thank you for your question. For personalised assistance with this query, please contact your case supervisor via email or through the workspace\n\nOur team will respond via the supervisor workspace after the eCheque is initiated. The response time depends on the queue, but it typically takes no longer than one business day.');
+        isTyping = false;
+        playReceiveSound();
+      }, 4000);
+    }
+  }
+
+  cbSendBtn.addEventListener('click', handleTextInput);
+  cbInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); handleTextInput(); }
+  });
+
+  cbInput.addEventListener('focus', function () {
+    cbInput.style.transform = 'scaleX(1.01)';
+    cbInput.style.transformOrigin = 'left center';
+  });
+  cbInput.addEventListener('blur', function () {
+    cbInput.style.transform = '';
+  });
+
+})();
+</script>
+</body>
+</html>
